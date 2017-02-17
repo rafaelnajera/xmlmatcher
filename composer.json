@@ -1,6 +1,10 @@
 {
     "name": "rafaelnajera/xmlmatcher",
     "description": "Description of project xmlmatcher.",
+    "type": "library",
+    "keywords": ["regexp"],
+    "homepage": "http://rafaelnajera.com/xmlmatcher",
+    "license": "MIT",
     "authors": [
         {
             "name": "Rafael Nájera",
