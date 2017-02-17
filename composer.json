@@ -1,0 +1,19 @@
+{
+    "name": "rafaelnajera/xmlmatcher",
+    "description": "Description of project xmlmatcher.",
+    "authors": [
+        {
+            "name": "Rafael Nájera",
+            "email": "rafael@najera.ca"
+        }
+    ],
+    "require": {
+        "rafaelnajera/matcher": "0.3"
+    },
+    
+    "autoload": {
+        "psr-4": {
+            "XmlMatcher\\": "XmlMatcher"
+        }
+    }
+}
