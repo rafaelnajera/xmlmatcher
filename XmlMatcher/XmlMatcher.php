@@ -8,11 +8,25 @@
 
 namespace XmlMatcher;
 
+use Matcher\Matcher;
 /**
  * Description of XmlMatcher
  *
  * @author Rafael Nájera <rafael.najera@uni-koeln.de>
  */
-class XmlMatcher {
-    const VERSION = '0.1';
+class XmlMatcher extends Matcher {
+    const VERSION = '0.2';
+    
+    public function matchXmlReader(\XMLReader $reader){
+        while ($reader->read()){
+            $this->match($reader);
+        }
+    }
+    
+    public function matchXmlString(string $xmlString){
+        $reader = new \XMLReader();
+        $reader->XML($xmlString);
+        $this->reset();
+        return $this->matchXmlReader($reader);
+    }
 }

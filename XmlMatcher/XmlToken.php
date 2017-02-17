@@ -30,33 +30,46 @@ use \Matcher\Token;
  */
 class XmlToken implements Token {
     
-    var $type;
-    var $name;
-    var $reqAttr;
-//    var $allowedAttr;
+    private $type;
+    private $name;
+    private $requiredAttributes;
+    private $optionalAttributes;
     
-    public function __construct($type, $name = '*') {
+    public function __construct($type, string $name = '/.*/') {
         $this->type = $type;
         $this->name = $name;
-        $this->reqAttr = [];
+        $this->requiredAttributes = [];
+        $this->optionalAttributes = [];
     }
-    public function withReqAttrs($attrs){
+    
+    public function withReqAttrs(array $attrs){
         $copy = clone $this;
         foreach($attrs as $atr){
-            $copy->reqAttr[]  = $atr;
+            $copy->requiredAttributes[]  = $atr;
         }
         return $copy;
     }
     
-    public function matches($r) {
-        if (!$this->matchValue($this->type, $r->nodeType)){
+    public function withOptAttrs(array $attrs){
+        $copy = clone $this;
+        foreach($attrs as $atr){
+            $copy->optionalAttributes[]  = $atr;
+        }
+        return $copy;
+    }
+    
+    public function matches($reader) {
+        if (!$this->matchValue($this->type, $reader->nodeType)){
             return false;
         }
         
-        if (!$this->matchValue($this->name, $r->name)){
+        if (!$this->matchValueWithRegexp($this->name, $reader->name)){
             return false;
         }
-        if (!$this->matchRequiredAttributes($r)){
+        if (!$this->matchRequiredAttributes($reader)){
+            return false;
+        }
+        if (!$this->matchOptionalAttributes($reader)){
             return false;
         }
         return true;
@@ -68,7 +81,7 @@ class XmlToken implements Token {
         return new XmlToken(\XMLReader::ELEMENT, $name);
     }
     
-    public static function endElementToken($name = '*'){
+    public static function endElementToken($name){
         return new XmlToken(\XMLReader::END_ELEMENT, $name);
     }
     
@@ -79,36 +92,82 @@ class XmlToken implements Token {
     //
     // Utility Functions
     //
+    
     private function matchValue($cond, $value){
-        if ($cond === '*'){
-            return true;
+        return $cond === $value;
+    }
+    
+    private function matchValueWithRegexp($cond, $value){
+        if (preg_match('/^\/.*\//', $cond)){
+            return preg_match($cond, $value);
         } 
-        else {
-            if ($cond === $value){
-                return true;
-            }
+        if ($cond === $value){
+            return true;
         }
         return false;
     }
     
-    private function matchRequiredAttributes($r){
+    private function matchRequiredAttributes(\XMLReader $reader){
         // Attributes only make sense in xml elements!
         if ($this->type !== \XMLReader::ELEMENT){
             return true;
         }
-        foreach ($this->reqAttr as $atr){
-            $value = $r->getAttribute($atr[0]);
+        foreach ($this->requiredAttributes as $atr){
+            $value = $reader->getAttribute($atr[0]);
             if (is_null($value)){
                 return false;
             }
-            if (!$this->matchValue($atr[1], $value)){
+            if (!$this->matchValueWithRegexp($atr[1], $value)){
                 return false;
             }
         }
         return true;
     }
     
-    public function matched($t2) {
-        return [$this->name, $this->type];
+    private function matchOptionalAttributes(\XMLReader $reader){
+        // Attributes only make sense in xml elements!
+        if ($this->type !== \XMLReader::ELEMENT){
+            return true;
+        }
+        
+        foreach ($this->optionalAttributes as $atr){
+            $value = $reader->getAttribute($atr[0]);
+            // return false if the attribute exists and does not match
+            // the given value/regexp
+            if (! is_null($value) && !$this->matchValueWithRegexp($atr[1], $value)){
+                return false;
+            }
+        }
+        return true;
+    }
+    
+    public function matched($reader) {
+        return [ 
+            'type'=> $this->type, 
+            'name'=> $this->name, 
+            'attributes' => $this->getAttributesFromReader($reader), 
+            'text' => $this->getTextFromReader($reader)
+                ];
+    }
+    
+    
+    private function getAttributesFromReader(\XMLReader $reader){
+        $attributes = [];
+        foreach ($this->requiredAttributes as $attr){
+            $attributes[$attr[0]]=$reader->getAttribute($attr[0]);
+        }
+        
+        foreach ($this->optionalAttributes as $attr){
+            $attributes[$attr[0]]=$reader->getAttribute($attr[0]);
+        }
+        return $attributes;
+    }
+    
+    private function getTextFromReader(\XMLReader $reader){
+        if ($reader->nodeType !== \XMLReader::TEXT){
+            return '';
+        }
+        
+        return $reader->readString();
     }
 }

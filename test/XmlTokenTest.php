@@ -22,17 +22,18 @@
 
 require '../vendor/autoload.php';
 require_once '../XmlMatcher/XmlToken.php';
+require_once '../XmlMatcher/XmlMatcher.php';
 
 use XmlMatcher\XmlToken;
+use XmlMatcher\XmlMatcher;
 use Matcher\Pattern;
-use Matcher\PatternMatcher;
 
 /**
  * Description of XmlTokenTest
  *
  * @author Rafael Nájera <rafael.najera@uni-koeln.de>
  */
-class XmlTokenTest extends PHPUnit_Framework_TestCase {
+class XmlTokenTest extends \PHPUnit_Framework_TestCase {
     
     public function testSimple(){
         $pattern = (new Pattern())->withTokenSeries([ 
@@ -40,69 +41,63 @@ class XmlTokenTest extends PHPUnit_Framework_TestCase {
             XmlToken::textToken(),
             XmlToken::endElementToken('tei')
         ]);
-        $matcher = new PatternMatcher($pattern);
+        $matcher = new XmlMatcher($pattern);
         
-        $reader = new XMLReader();
-        $reader->XML('<tei>Some test</tei>');
-        
-        while ($reader->read()){
-            $matcher->match($reader);
-        }
+        $matcher->matchXmlString('<tei>Some test</tei>');
         $this->assertEquals(true, $matcher->matchFound());
+        $this->assertEquals([ 'type' => XmlReader::ELEMENT, 
+            'name' => 'tei', 
+            'attributes' => [], 
+            'text' => ''], $matcher->matched[0]);
         
-        $matcher->reset();
-        $reader->XML('<other>Some test</other>');
-        while ($reader->read()){
-            $matcher->match($reader);
-        }
+        $matcher->matchXmlString('<other>Some test</other>');
         $this->assertEquals(false, $matcher->matchFound());
         
-        $matcher->reset();
-        $reader->XML('<tei><other/>Some test</tei>');
-        while ($reader->read()){
-            $matcher->match($reader);
-        }
+        $matcher->matchXmlString('<tei><other/>Some test</tei>');
         $this->assertEquals(false, $matcher->matchFound());
         
-        $matcher->reset();
-        $reader->XML('<tei>Some test<other/></tei>');
-        while ($reader->read()){
-            $matcher->match($reader);
-        }
+        $matcher->matchXmlString('<tei>Some test<other/></tei>');
         $this->assertEquals(false, $matcher->matchFound());
     }
     
     public function testReqAttributes(){
         $pattern = (new Pattern())->withTokenSeries([ 
             XmlToken::elementToken('test')->withReqAttrs([ ['r', 'yes']]), 
-            XmlToken::elementToken('other')->withReqAttrs([ ['n', '*']]),
+            XmlToken::elementToken('other')->withReqAttrs([ ['n', '/.*/']]),
             XmlToken::endElementToken('test')
         ]);
         
-        $matcher = new PatternMatcher($pattern);
-        $reader = new XMLReader();
-        $reader->XML('<test r="yes"><other n="doesntmatter"/></test>');
-        while ($reader->read()){
-            $matcher->match($reader);
-        }
+        $matcher = new XmlMatcher($pattern);
+        $matcher->matchXmlString('<test r="yes"><other n="doesntmatter"/></test>');
         $this->assertEquals(true, $matcher->matchFound());
-        //print_r($p);
-        
-        $matcher->reset();
-        $reader->XML('<test r="no"><other n="doesntmatter"/></test>');
-        while ($reader->read()){
-            $matcher->match($reader);
-        }
-        $this->assertEquals(false, $matcher->matchFound());
-        
-        $matcher->reset();
-        $reader->XML('<test x="yes"><other n="doesntmatter"/></test>');
-        while ($reader->read()){
-            $matcher->match($reader);
-        }
-        $this->assertEquals(false, $matcher->matchFound());
-        
        
+        $matcher->matchXmlString('<test r="no"><other n="doesntmatter"/></test>');
+        $this->assertEquals(false, $matcher->matchFound());
+        
+        $matcher->matchXmlString('<test x="yes"><other n="doesntmatter"/></test>');
+        $this->assertEquals(false, $matcher->matchFound());
+    }
+    
+    public function testOptAttributes(){
+        $pattern = (new Pattern())->withTokenSeries([ 
+            XmlToken::elementToken('test')->withReqAttrs([ ['r', 'yes']]), 
+            XmlToken::elementToken('other')->withOptAttrs([ ['n', '/.*/'], ['x', '/^[a-z]+$/']]),
+            XmlToken::endElementToken('test')
+        ]);
+        
+        $matcher = new XmlMatcher($pattern);
+        
+        $matcher->matchXmlString('<test r="yes"><other n="doesntmatter"/></test>');
+        $this->assertEquals(true, $matcher->matchFound());
+        
+        $matcher->matchXmlString('<test r="yes"><other/></test>');
+        $this->assertEquals(true, $matcher->matchFound());
+        
+        $matcher->matchXmlString('<test r="yes"><other x="abcba"/></test>');
+        $this->assertEquals(true, $matcher->matchFound());
+        
+        $matcher->matchXmlString('<test r="yes"><other x="abc123"/></test>');
+        $this->assertEquals(false, $matcher->matchFound());
     }
     
 }
