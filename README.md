@@ -1,11 +1,13 @@
 # XmlMatcher
 
-Implements a [Matcher\Token] that matches XML elements out of an \XmlReader
+Implements a [Matcher\Token](https://github.com/rafaelnajera/matcher) that matches XML elements out of an \XmlReader
 
 ## Installation 
-It is recommended that you use [Composer](https://getcomposer.org/) to install XmlMatcher.
+Install the latest version with
 
-XmlMatcher requires PHP 7.0 or above to run.
+```bash
+$ composer require rafaelnajera/xmlmatcher
+```
 
 ## Usage
 
