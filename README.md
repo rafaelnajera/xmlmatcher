@@ -1,6 +1,6 @@
 # XmlMatcher
 
-Implements a \Matcher\Token that matches XML elements out of an \XmlReader
+Implements a [Matcher\Token] that matches XML elements out of an \XmlReader
 
 ## Installation 
 It is recommended that you use [Composer](https://getcomposer.org/) to install XmlMatcher.
