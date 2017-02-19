@@ -4,27 +4,24 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "67567ef1ef732010edf3e6a93ae7ab4b",
+    "content-hash": "ce96fc0c14c2db3c34aec6674a9089ae",
     "packages": [
         {
             "name": "rafaelnajera/matcher",
-            "version": "0.4.0",
+            "version": "0.4.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/rafaelnajera/matcher.git",
-                "reference": "471d552cab5fb1231ceb671c109e3aa483eba99c"
+                "reference": "fee30ba170ce33b2bf2c9256b1a7fa6ca4b54143"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/rafaelnajera/matcher/zipball/471d552cab5fb1231ceb671c109e3aa483eba99c",
-                "reference": "471d552cab5fb1231ceb671c109e3aa483eba99c",
+                "url": "https://api.github.com/repos/rafaelnajera/matcher/zipball/fee30ba170ce33b2bf2c9256b1a7fa6ca4b54143",
+                "reference": "fee30ba170ce33b2bf2c9256b1a7fa6ca4b54143",
                 "shasum": ""
             },
             "require": {
                 "php": ">=7.0"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "^5.0"
             },
             "type": "library",
             "autoload": {
@@ -48,7 +45,7 @@
             "keywords": [
                 "regexp"
             ],
-            "time": "2017-02-17T16:07:44+00:00"
+            "time": "2017-02-19T11:43:38+00:00"
         }
     ],
     "packages-dev": [],

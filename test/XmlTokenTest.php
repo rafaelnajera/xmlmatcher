@@ -19,25 +19,23 @@
  *  
  */
 
+namespace XmlMatcher;
 
-require '../vendor/autoload.php';
-require_once '../XmlMatcher/XmlToken.php';
-require_once '../XmlMatcher/XmlMatcher.php';
-
-use XmlMatcher\XmlToken;
-use XmlMatcher\XmlMatcher;
 use Matcher\Pattern;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Description of XmlTokenTest
  *
  * @author Rafael Nájera <rafael.najera@uni-koeln.de>
  */
-class XmlTokenTest extends \PHPUnit_Framework_TestCase {
+class XmlTokenTest extends TestCase
+{
     
-    public function testSimple(){
-        $pattern = (new Pattern())->withTokenSeries([ 
-            XmlToken::elementToken('tei'), 
+    public function testSimple()
+    {
+        $pattern = (new Pattern())->withTokenSeries([
+            XmlToken::elementToken('tei'),
             XmlToken::textToken(),
             XmlToken::endElementToken('tei')
         ]);
@@ -45,9 +43,9 @@ class XmlTokenTest extends \PHPUnit_Framework_TestCase {
         
         $matcher->matchXmlString('<tei>Some test</tei>');
         $this->assertEquals(true, $matcher->matchFound());
-        $this->assertEquals([ 'type' => XmlReader::ELEMENT, 
-            'name' => 'tei', 
-            'attributes' => [], 
+        $this->assertEquals([ 'type' => \XmlReader::ELEMENT,
+            'name' => 'tei',
+            'attributes' => [],
             'text' => ''], $matcher->matched[0]);
         
         $matcher->matchXmlString('<other>Some test</other>');
@@ -60,9 +58,10 @@ class XmlTokenTest extends \PHPUnit_Framework_TestCase {
         $this->assertEquals(false, $matcher->matchFound());
     }
     
-    public function testReqAttributes(){
-        $pattern = (new Pattern())->withTokenSeries([ 
-            XmlToken::elementToken('test')->withReqAttrs([ ['r', 'yes']]), 
+    public function testReqAttributes()
+    {
+        $pattern = (new Pattern())->withTokenSeries([
+            XmlToken::elementToken('test')->withReqAttrs([ ['r', 'yes']]),
             XmlToken::elementToken('other')->withReqAttrs([ ['n', '/.*/']]),
             XmlToken::endElementToken('test')
         ]);
@@ -78,9 +77,10 @@ class XmlTokenTest extends \PHPUnit_Framework_TestCase {
         $this->assertEquals(false, $matcher->matchFound());
     }
     
-    public function testOptAttributes(){
-        $pattern = (new Pattern())->withTokenSeries([ 
-            XmlToken::elementToken('test')->withReqAttrs([ ['r', 'yes']]), 
+    public function testOptAttributes()
+    {
+        $pattern = (new Pattern())->withTokenSeries([
+            XmlToken::elementToken('test')->withReqAttrs([ ['r', 'yes']]),
             XmlToken::elementToken('other')->withOptAttrs([ ['n', '/.*/'], ['x', '/^[a-z]+$/']]),
             XmlToken::endElementToken('test')
         ]);
@@ -99,5 +99,4 @@ class XmlTokenTest extends \PHPUnit_Framework_TestCase {
         $matcher->matchXmlString('<test r="yes"><other x="abc123"/></test>');
         $this->assertEquals(false, $matcher->matchFound());
     }
-    
 }
