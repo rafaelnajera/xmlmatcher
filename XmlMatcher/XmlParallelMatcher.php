@@ -26,19 +26,13 @@
 
 namespace XmlMatcher;
 
-use Matcher\Matcher;
-
 /**
- * Description of XmlMatcher
+ * \Matcher\ParallelMatcher with utility functions for XML matching
  *
  * @author Rafael Nájera <rafael@najera.ca>
  */
-class XmlMatcher extends Matcher
+class XmlParallelMatcher extends \Matcher\ParallelMatcher
 {
-    const VERSION = '0.3';
-    
-    const FAKE_TAG = 'xmlmatcherfaketagKVGYR';
-    
     public function matchXmlReader(\XMLReader $reader, $skip = true)
     {
         while (XmlMatcher::advanceReader($reader, $skip)) {
@@ -50,34 +44,13 @@ class XmlMatcher extends Matcher
     {
         // Add a fake tag to support fragmentary inner XML
         $modifiedString = XmlMatcher::addFakeTag($xmlString);
+
         $reader = new \XMLReader();
-        $reader->XML($modifiedString);
+        if (!$reader->XML($modifiedString)) {
+            return false;
+        }
         $this->reset();
         return $this->matchXmlReader($reader, $skip);
     }
     
-    public static function advanceReader(\XMLReader $reader, $skip = true) 
-    {
-        $result = $reader->read();
-        if (!$result) {
-            return $result;
-        }
-        if ($skip) {
-            while ($reader->nodeType === \XMLReader::SIGNIFICANT_WHITESPACE or 
-                    $reader->nodeType === \XMLReader::COMMENT) {
-                $result = $reader->read();
-            }
-        }
-        if ($reader->nodeType === \XMLReader::ELEMENT && $reader->name === XmlMatcher::FAKE_TAG){
-            return XmlMatcher::advanceReader($reader, $skip);
-        }
-        if ($reader->nodeType === \XMLReader::END_ELEMENT && $reader->name === XmlMatcher::FAKE_TAG){
-            return XmlMatcher::advanceReader($reader, $skip);
-        }
-        return $result;
-    }
-    
-    public static function addFakeTag($xmlString){
-        return '<' . self::FAKE_TAG . '>' . $xmlString . '</' . self::FAKE_TAG . '>';
-    }
 }

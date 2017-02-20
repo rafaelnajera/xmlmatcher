@@ -34,7 +34,7 @@ use PHPUnit\Framework\TestCase;
  *
  * @author Rafael Nájera <rafael@najera.ca>
  */
-class XmlTokenTest extends TestCase
+class XmlMatcherTest extends TestCase
 {
     
     public function testSimple()
@@ -102,6 +102,32 @@ class XmlTokenTest extends TestCase
         $this->assertEquals(true, $matcher->matchFound());
         
         $matcher->matchXmlString('<test r="yes"><other x="abc123"/></test>');
+        $this->assertEquals(false, $matcher->matchFound());
+    }
+    
+    public function testSkipping()
+    {
+        $pattern = (new Pattern())->withTokenSeries([
+            XmlToken::elementToken('tei'),
+            XmlToken::textToken(),
+            XmlToken::endElementToken('tei')
+        ]);
+        $matcher = new XmlMatcher($pattern);
+        
+        $matcher->matchXmlString('<!-- Some comment -->     <tei>Some test</tei>');
+        $this->assertEquals(true, $matcher->matchFound());
+        $this->assertEquals([ 'type' => \XmlReader::ELEMENT,
+            'name' => 'tei',
+            'attributes' => [],
+            'text' => ''], $matcher->matched[0]);
+        
+        $matcher->matchXmlString('<other>Some test</other>');
+        $this->assertEquals(false, $matcher->matchFound());
+        
+        $matcher->matchXmlString('<tei><other/>Some test</tei>');
+        $this->assertEquals(false, $matcher->matchFound());
+        
+        $matcher->matchXmlString('<tei>Some test<other/></tei>');
         $this->assertEquals(false, $matcher->matchFound());
     }
 }

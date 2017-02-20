@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "ce96fc0c14c2db3c34aec6674a9089ae",
+    "content-hash": "4322eb42b770c71a515732190eac76b1",
     "packages": [
         {
             "name": "rafaelnajera/matcher",
-            "version": "0.4.1",
+            "version": "0.5.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/rafaelnajera/matcher.git",
-                "reference": "fee30ba170ce33b2bf2c9256b1a7fa6ca4b54143"
+                "reference": "2eadc085612c21f3edd976226de0e73e673cdf78"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/rafaelnajera/matcher/zipball/fee30ba170ce33b2bf2c9256b1a7fa6ca4b54143",
-                "reference": "fee30ba170ce33b2bf2c9256b1a7fa6ca4b54143",
+                "url": "https://api.github.com/repos/rafaelnajera/matcher/zipball/2eadc085612c21f3edd976226de0e73e673cdf78",
+                "reference": "2eadc085612c21f3edd976226de0e73e673cdf78",
                 "shasum": ""
             },
             "require": {
@@ -45,7 +45,7 @@
             "keywords": [
                 "regexp"
             ],
-            "time": "2017-02-19T11:43:38+00:00"
+            "time": "2017-02-19T18:48:19+00:00"
         }
     ],
     "packages-dev": [],
