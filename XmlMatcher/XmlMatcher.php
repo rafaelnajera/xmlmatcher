@@ -35,7 +35,7 @@ use Matcher\Matcher;
  */
 class XmlMatcher extends Matcher
 {
-    const VERSION = '0.3';
+    const VERSION = '0.4';
     
     const FAKE_TAG = 'xmlmatcherfaketagKVGYR';
     

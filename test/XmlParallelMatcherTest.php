@@ -77,6 +77,29 @@ class XmlParallelMatcherTest extends TestCase
         $this->assertEquals(2, $pmatcher->numMatches());
         $this->assertEquals('Lets', $pmatcher->matched[0][1]['text']);
         $this->assertEquals(' say this is a line', $pmatcher->matched[1][0]['text']);
+        
+        // Bad XML
+        $result1 = $pmatcher->matchXmlString('This is a line with <sic>bad XML</zic>');
+        $this->assertFalse($result1);
+        $this->assertEquals(XmlParallelMatcher::ERROR_XML_ERROR, $pmatcher->errorCode);
+        $this->assertNotFalse($pmatcher->xmlError);
+        
+        // bad tag
+        $result2 = $pmatcher->matchXmlString('This is a line with a <wrong>tag</wrong> and more text');
+        $this->assertFalse($result2);
+        $this->assertEquals(XmlParallelMatcher::ERROR_MATCH_ERROR, $pmatcher->errorCode);
+        $this->assertFalse($pmatcher->xmlError);
+        $this->assertEquals(1, $pmatcher->numMatches());
+        $this->assertEquals('<wrong>tag</wrong>', $pmatcher->matchErrorElement);
+        
+        // another bad tag
+        $result3 = $pmatcher->matchXmlString('This is a line with a <hi>bad hi tag</hi>');
+        $this->assertFalse($result3);
+        $this->assertEquals(XmlParallelMatcher::ERROR_MATCH_ERROR, $pmatcher->errorCode);
+        $this->assertFalse($pmatcher->xmlError);
+        $this->assertEquals(1, $pmatcher->numMatches());
+        $this->assertEquals('<hi>bad hi tag</hi>', $pmatcher->matchErrorElement);
     }
+    
     
 }

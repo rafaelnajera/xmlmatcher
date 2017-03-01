@@ -33,15 +33,39 @@ namespace XmlMatcher;
  */
 class XmlParallelMatcher extends \Matcher\ParallelMatcher
 {
+    const ERROR_NO_ERROR = 0;
+    const ERROR_XML_ERROR = 1;
+    const ERROR_MATCH_ERROR = 2;
+    
+    public $errorCode;
+    public $matchErrorElement;
+    public $xmlError;
+    
+    public function __construct(array $patternArray = array()) {
+        parent::__construct($patternArray);
+        $this->resetInternalErrors();
+        
+    }
+    
     public function matchXmlReader(\XMLReader $reader, $skip = true)
     {
+        $this->resetXmlErrors();
+        $this->resetInternalErrors();
+
         while (XmlMatcher::advanceReader($reader, $skip)) {
-            $this->match($reader);
+            $matchResult = $this->match($reader);
+            if (!$matchResult) {
+               $this->errorCode = self::ERROR_MATCH_ERROR;
+               $this->matchErrorElement = $reader->readOuterXml();
+               return false;
+            }
         }
+        return !$this->xmlErrorsFound();
     }
     
     public function matchXmlString(string $xmlString, $skip = true)
     {
+        $this->resetXmlErrors();
         // Add a fake tag to support fragmentary inner XML
         $modifiedString = XmlMatcher::addFakeTag($xmlString);
 
@@ -53,4 +77,27 @@ class XmlParallelMatcher extends \Matcher\ParallelMatcher
         return $this->matchXmlReader($reader, $skip);
     }
     
+    private function resetXmlErrors()
+    {
+        libxml_use_internal_errors(true);
+        libxml_clear_errors();
+        $this->xmlError = false;
+    }
+    
+    private function resetInternalErrors() 
+    {
+        $this->errorCode = self::ERROR_NO_ERROR;
+        $this->matchErrorElement = false;
+        $this->xmlError = false;
+    }
+    
+    private function xmlErrorsFound()
+    {
+        $this->xmlError = libxml_get_last_error();
+        if ($this->xmlError) {
+            $this->errorCode = self::ERROR_XML_ERROR;
+            return true;
+        }
+        return false;
+    }
 }
